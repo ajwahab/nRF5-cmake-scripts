@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.6)
 
 if (NOT CMAKE_VERSION VERSION_LESS 3.9)
     # Allow user to enable CMAKE_INTERPROCEDURAL_OPTIMIZATION (LTO) if supported for the toolchain.
-    # This is supported from CMake version 9 and later.
+    # This is supported from cmake version 9 and later.
     cmake_policy(SET CMP0069 NEW)
 endif ()
 
@@ -75,7 +75,7 @@ if(NOT SOFTDEVICE_VERSION)
     message(FATAL_ERROR "The softdevice version (SOFTDEVICE_VERSION) must be set, e.g. \"7.2.0\"")
 endif()
 
-# must be set in file (not macro) scope (in macro would point to parent CMake directory)
+# must be set in file (not macro) scope (in macro would point to parent cmake directory)
 set(nRF5_CMAKE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
 # must be set before project, otherwise causes linking issues
@@ -185,26 +185,28 @@ macro(nRF5_setup)
     include("${CMAKE_CONFIG_DIR}/FindSDK.cmake")
 
     include("${CMAKE_CONFIG_DIR}/BuildType.cmake")
-    include("${CMAKE_CONFIG_DIR}/Board.cmake")
+    if(NOT BOARD)
+        include("${CMAKE_CONFIG_DIR}/Board.cmake")
+        include("${CMAKE_CONFIG_DIR}/board/${BOARD}.cmake")
+    endif()
     include("${CMAKE_CONFIG_DIR}/PCLint.cmake")
     include("${CMAKE_CONFIG_DIR}/GenerateSESProject.cmake")
 
     include("${CMAKE_CONFIG_DIR}/sdk/${nRF5_SDK_VERSION}.cmake")
     include("${CMAKE_CONFIG_DIR}/platform/${PLATFORM}.cmake")
     include("${CMAKE_CONFIG_DIR}/softdevice/${SOFTDEVICE}.cmake")
-    include("${CMAKE_CONFIG_DIR}/board/${BOARD}.cmake")
 
     include(${nRF5_CMAKE_PATH}/includes/libraries.cmake)
 
     string(SUBSTRING ${PLATFORM} 0 5 NRF_FAMILY)
 
+    set(ARCH ${${PLATFORM}_ARCH})
+
     message(STATUS "SDK: ${nRF5_SDK_VERSION}")
     message(STATUS "Platform: ${PLATFORM}")
-    message(STATUS "Arch: ${${PLATFORM}_ARCH}")
+    message(STATUS "Arch: ${ARCH}")
     message(STATUS "SoftDevice: ${SOFTDEVICE}")
     message(STATUS "Board: ${BOARD}")
-
-    set(ARCH ${${PLATFORM}_ARCH})
 
     enable_language(C ASM)
 
